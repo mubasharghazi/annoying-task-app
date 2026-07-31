@@ -29,17 +29,18 @@
 
       outputDiv.innerText = 'Analyzing with Amazon Bedrock Nova... Please wait...';
 
-      
       const API_URL = 'https://jl8l5rsbg2.execute-api.us-east-1.amazonaws.com/extract';
 
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'text/plain'
+          },
           body: JSON.stringify({ text: text })
         });
         const data = await response.json();
-        outputDiv.innerText = data.result || data.error || 'Something went wrong.';
+        outputDiv.innerText = data.result || data.error || JSON.stringify(data);
       } catch (err) {
         outputDiv.innerText = 'Error connecting to API: ' + err.message;
       }
