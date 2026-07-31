@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TaskExtractor AI</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    textarea { width: 100%; height: 180px; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #FF9900; color: white; border: none; padding: 12px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+    button:hover { background: #e68a00; }
+    #output { background: #f4f4f4; padding: 15px; border-radius: 4px; margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>📩 Daily Email & Update Action Extractor</h2>
+  <p>Paste long updates, emails, or Slack threads below to get an instant executive summary and actionable task list!</p>
+  
+  <textarea id="inputText" placeholder="Paste text here..."></textarea><br>
+  <button onclick="extractTasks()">Extract Action Items</button>
+
+  <h3>Results:</h3>
+  <div id="output">Your action items will appear here...</div>
+
+  <script>
+    async function extractTasks() {
+      const text = document.getElementById('inputText').value;
+      const outputDiv = document.getElementById('output');
+      if (!text) return alert('Please enter some text!');
+
+      outputDiv.innerText = 'Analyzing with Amazon Bedrock Nova... Please wait...';
+
+      // REPLACE THIS URL WITH YOUR API GATEWAY INVOKE URL
+      const API_URL = 'YOUR_API_GATEWAY_INVOKE_URL';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+        const data = await response.json();
+        outputDiv.innerText = data.result || data.error || 'Something went wrong.';
+      } catch (err) {
+        outputDiv.innerText = 'Error connecting to API: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
