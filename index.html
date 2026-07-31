@@ -2,49 +2,328 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TaskExtractor AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskExtractor AI | Serverless Productivity Utility</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
-    textarea { width: 100%; height: 180px; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #FF9900; color: white; border: none; padding: 12px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; margin-top: 10px; }
-    button:hover { background: #e68a00; }
-    #output { background: #f4f4f4; padding: 15px; border-radius: 4px; margin-top: 20px; white-space: pre-wrap; }
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #ff9900;
+      --accent-hover: #e68a00;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --success-bg: #064e3b;
+      --success-text: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 153, 0, 0.15);
+      color: var(--accent-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 153, 0, 0.3);
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Main Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      margin-bottom: 25px;
+    }
+
+    .input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    /* Quick Preset Buttons */
+    .presets {
+      display: flex;
+      gap: 8px;
+    }
+    .preset-btn {
+      background: #334155;
+      color: #cbd5e1;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .preset-btn:hover {
+      background: #475569;
+      color: #fff;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #f8fafc;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      border-color: var(--accent-color);
+    }
+
+    .btn-submit {
+      width: 100%;
+      margin-top: 16px;
+      background: var(--accent-color);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s ease, transform 0.1s;
+    }
+    .btn-submit:hover {
+      background: var(--accent-hover);
+    }
+    .btn-submit:active {
+      transform: scale(0.99);
+    }
+
+    /* Output Section */
+    .output-card {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+    }
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .output-title {
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .output-content {
+      line-height: 1.7;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: none;
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+    }
+    .spinner i {
+      font-size: 2rem;
+      color: var(--accent-color);
+      margin-bottom: 10px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent-color); text-decoration: none; }
   </style>
 </head>
 <body>
-  <h2>📩 Daily Email & Update Action Extractor</h2>
-  <p>Paste long updates, emails, or Slack threads below to get an instant executive summary and actionable task list!</p>
-  
-  <textarea id="inputText" placeholder="Paste text here..."></textarea><br>
-  <button onclick="extractTasks()">Extract Action Items</button>
 
-  <h3>Results:</h3>
-  <div id="output">Your action items will appear here...</div>
+  <div class="container">
+    <header>
+      <div class="badge">
+        <i class="fa-solid fa-bolt"></i> Powered by AWS Bedrock Nova
+      </div>
+      <h1>TaskExtractor AI</h1>
+      <p class="subtitle">Turn chaotic updates, emails, and Slack messages into structured action plans instantly.</p>
+    </header>
+
+    <div class="card">
+      <div class="input-header">
+        <label for="inputText">Paste Unstructured Text</label>
+        <div class="presets">
+          <button class="preset-btn" onclick="loadSample('slack')">Sample Slack Update</button>
+          <button class="preset-btn" onclick="loadSample('email')">Sample Email</button>
+        </div>
+      </div>
+      <textarea id="inputText" placeholder="Paste long updates, meeting notes, or emails here..."></textarea>
+      
+      <button class="btn-submit" onclick="extractTasks()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Extract Action Items
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="spinner">
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <p>Analyzing context with Amazon Bedrock Nova... Please wait.</p>
+    </div>
+
+    <!-- Output State -->
+    <div id="outputCard" class="output-card">
+      <div class="output-header">
+        <div class="output-title">
+          <i class="fa-solid fa-square-check" style="color: var(--accent-color);"></i> Extraction Results
+        </div>
+        <button class="copy-btn" onclick="copyOutput()"><i class="fa-solid fa-copy"></i> Copy</button>
+      </div>
+      <div id="output" class="output-content"></div>
+    </div>
+
+    <footer>
+      Built for the AWS Builder Weekend Challenge | Deployed via <a href="https://aws.amazon.com/amplify/" target="_blank">AWS Amplify</a>
+    </footer>
+  </div>
 
   <script>
+    const samples = {
+      slack: "Hi team, quick update on the project. We finished the database migration yesterday, but the user login API is still throwing a 500 error. Sarah, please investigate the Lambda logs and fix the endpoint by 3 PM today. John, can you make sure the frontend user dashboard connects properly once Sarah updates the API? Also, everyone please submit your weekly timesheets before EOD Friday.",
+      email: "Dear Team, Following up on our Q3 roadmap sync. The marketing team will launch the new campaign next Tuesday. Before that, we need to ensure all email templates are updated with the new branding. Alex needs to review the copy by tomorrow morning. Maria will handle the asset uploads to S3 by Thursday. Please note that AWS budget limits must not be exceeded."
+    };
+
+    function loadSample(type) {
+      document.getElementById('inputText').value = samples[type];
+    }
+
     async function extractTasks() {
       const text = document.getElementById('inputText').value;
+      const outputCard = document.getElementById('outputCard');
       const outputDiv = document.getElementById('output');
-      if (!text) return alert('Please enter some text!');
+      const loading = document.getElementById('loading');
 
-      outputDiv.innerText = 'Analyzing with Amazon Bedrock Nova... Please wait...';
+      if (!text.trim()) return alert('Please enter or paste some text first!');
+
+      outputCard.style.display = 'none';
+      loading.style.display = 'block';
 
       const API_URL = 'https://jl8l5rsbg2.execute-api.us-east-1.amazonaws.com/extract';
 
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'text/plain'
-          },
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ text: text })
         });
+
         const data = await response.json();
-        outputDiv.innerText = data.result || data.error || JSON.stringify(data);
+        loading.style.display = 'none';
+        outputCard.style.display = 'block';
+
+        if (data.result) {
+          outputDiv.innerText = data.result;
+        } else if (data.error) {
+          outputDiv.innerText = "⚠️ Backend Response:\n" + data.error;
+        } else {
+          outputDiv.innerText = JSON.stringify(data, null, 2);
+        }
       } catch (err) {
-        outputDiv.innerText = 'Error connecting to API: ' + err.message;
+        loading.style.display = 'none';
+        outputCard.style.display = 'block';
+        outputDiv.innerText = '❌ Error connecting to API: ' + err.message;
       }
     }
+
+    function copyOutput() {
+      const text = document.getElementById('output').innerText;
+      navigator.clipboard.writeText(text);
+      alert('Results copied to clipboard!');
+    }
   </script>
+
 </body>
 </html>
